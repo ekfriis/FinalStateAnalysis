@@ -1,3 +1,4 @@
+
 '''
 
 Implementation of e-mu-tau channel analysis
@@ -17,21 +18,15 @@ log = logging.getLogger("emtChannel")
 ROOT.gROOT.SetBatch(True)
 
 #Define the fake rate versus muon pt
-#FAKE_RATE_0 = 5.97e-1
-#FAKE_RATE_1 = 15.24
-#FAKE_RATE_2 = 2.6
-#FAKE_RATE_3 = 7.88e-3
-
-# Wjets FR
-FAKE_RATE_0 = 1.076
-FAKE_RATE_1 = 1.298e+1
-FAKE_RATE_2 = 2.41
-FAKE_RATE_3 = 1.516e-2
+FAKE_RATE_0 = 3.174
+FAKE_RATE_1 = 14.99
+FAKE_RATE_2 = 2.47
+FAKE_RATE_3 = 6.75e-3
 
 FAKE_RATE = "(%0.4f*TMath::Landau(VAR, %0.4f, %0.4f,0)+%0.4f)" % (
     FAKE_RATE_0, FAKE_RATE_1, FAKE_RATE_2, FAKE_RATE_3)
 
-FR_X = 'Elec_JetPt'
+FR_X = 'Mu_JetPt'
 FAKE_RATE = FAKE_RATE.replace('VAR', FR_X)
 FR_WEIGHT = '((%s)/(1-%s))' % (FAKE_RATE, FAKE_RATE)
 
@@ -40,15 +35,18 @@ base_selection = [
     'ElecPt > 9',
     'MuAbsEta < 2.1',
     'ElecAbsEta < 2.5',
-    'Mu_MuRelIso < 0.3',
-    'Mu_MuID_WWID > 0.5',
+    #'Mu_MuRelIso < 0.3',
+    #'Mu_MuID_WWID > 0.5',
     'Mu17Ele8All_HLT > 0.5',
     'Tau_LooseHPS > 0.5',
     'MuCharge*ElecCharge > 0',
     'Mu_MuBtag < 3.3',
+    'Mu_InnerNPixHits > 0.5',
     'MuDZ < 0.2',
     'ElecDZ < 0.2',
     'TauDZ < 0.2',
+    'Elec_EID_WWID > 0.5',
+    'Elec_ERelIso < 0.3'
 ]
 
 passes_ht = [
@@ -60,12 +58,12 @@ passes_vtx = [
 ]
 
 bkg_enriched = [
-    '(Elec_EID_WWID < 0.5 || Elec_ERelIso > 0.3)'
+    '(Mu_MuID_WWID < 0.5 || Mu_MuRelIso > 0.3)'
 ]
 
 final_selection = [
-    'Elec_EID_WWID > 0.5',
-    'Elec_ERelIso < 0.3'
+    'Mu_MuID_WWID > 0.5',
+    'Mu_MuRelIso < 0.3'
 ]
 
 variables = {
