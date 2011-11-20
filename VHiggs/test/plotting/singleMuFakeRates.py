@@ -93,6 +93,68 @@ fakerates = {
             'Muon2_MuRelIso < 0.3',
         ]
     },
+    'muHighPt' : {
+        'ntuple' : 'mm',
+        'pd' : 'data_DoubleMu',
+        'exclude' : ['*DoubleE*', '*MuEG*', '*SingleMu*'],
+        'mc_pd' : 'Wjets',
+        'varname' : 'MuJetPt',
+        'vartitle' : 'Mu Jet Pt',
+        'var' : 'Muon2_JetPt',
+        'varbinning' : [100, 0, 100],
+        'rebin' : 5,
+        'evtType' : '#mu#mu',
+        'base_cuts' : wjets_selection,
+        'control_plots' : [
+            ('Btag', 'Muon2_MuBtag',
+             "Probe TCHE", [100, -5, 5]),
+        ],
+        'final_cuts' : [],
+        'denom' : [
+            'Muon2_MuBtag < 3.3',
+            'Muon2_InnerNPixHits > 0.5',
+            'DoubleMus_HLT > 0.5',
+            'Muon2Pt > 18',
+            'Muon2AbsEta < 2.1',
+            'Muon1DZ < 0.2',
+            'Muon2DZ < 0.2',
+        ],
+        'num' : [
+            'Muon2_MuID_WWID > 0.5',
+            'Muon2_MuRelIso < 0.3',
+        ]
+    },
+    'muQCDHighPt' : {
+        'ntuple' : 'mm',
+        'pd' : 'data_DoubleMu',
+        'exclude' : ['*DoubleE*', '*MuEG*', '*SingleMu*'],
+        'mc_pd' : 'QCDMu',
+        'varname' : 'MuJetPt',
+        'vartitle' : 'Mu Jet Pt',
+        'var' : 'Muon2_JetPt',
+        'varbinning' : [100, 0, 100],
+        'rebin' : 10,
+        'evtType' : '#mu#mu',
+        'base_cuts' : qcd_selection,
+        'control_plots' : [
+            ('Btag', 'Muon2_MuBtag',
+             "Probe TCHE", [100, -5, 5]),
+        ],
+        'final_cuts' : [],
+        'denom' : [
+            'Muon2_MuBtag < 3.3',
+            'Muon2_InnerNPixHits > 0.5',
+            'DoubleMus_HLT > 0.5',
+            'Muon2Pt > 18',
+            'Muon2AbsEta < 2.1',
+            'Muon1DZ < 0.2',
+            'Muon2DZ < 0.2',
+        ],
+        'num' : [
+            'Muon2_MuID_WWID > 0.5',
+            'Muon2_MuRelIso < 0.3',
+        ]
+    },
     'muQCD' : {
         'ntuple' : 'mm',
         'pd' : 'data_DoubleMu',
