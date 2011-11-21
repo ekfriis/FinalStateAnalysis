@@ -74,6 +74,25 @@ object_config = {
         'function' : muon_fit_func,
         'label' : 'Jet #rightarrow #mu fake rate',
     },
+    'muHighPt' : {
+        'scenarios' : {
+            'SingleMu_Wjets' : {
+                'title' : 'W+jet_{#mu} (Single Mu)',
+                'histos' : get_histograms(singlemu_fr_file, '2011AB', 'muHighPt'),
+                'rebin' : 5,
+            },
+            'SingleMu_QCD' : {
+                'title' : 'QCD (Single Mu)',
+                'histos' : get_histograms(singlemu_fr_file, '2011AB', 'muQCDHighPt'),
+                'rebin' : 1,
+                'exclude' : True,
+            },
+        },
+        'rebin' : 1,
+        'fit_label' : 'Combined Fit',
+        'function' : muon_fit_func,
+        'label' : 'Jet #rightarrow #mu fake rate',
+    },
     'e' : {
         'scenarios' : {
             'SingleMu_Wjets' : {

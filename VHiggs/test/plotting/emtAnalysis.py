@@ -18,10 +18,10 @@ log = logging.getLogger("emtChannel")
 ROOT.gROOT.SetBatch(True)
 
 #Define the fake rate versus muon pt
-FAKE_RATE_0 = 3.174
-FAKE_RATE_1 = 14.99
-FAKE_RATE_2 = 2.47
-FAKE_RATE_3 = 6.75e-3
+FAKE_RATE_0 = 3.8
+FAKE_RATE_1 = 3.04e01
+FAKE_RATE_2 = 3.85
+FAKE_RATE_3 = 2.5387e-2
 
 FAKE_RATE = "(%0.4f*TMath::Landau(VAR, %0.4f, %0.4f,0)+%0.4f)" % (
     FAKE_RATE_0, FAKE_RATE_1, FAKE_RATE_2, FAKE_RATE_3)
