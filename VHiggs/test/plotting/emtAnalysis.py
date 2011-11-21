@@ -18,10 +18,10 @@ log = logging.getLogger("emtChannel")
 ROOT.gROOT.SetBatch(True)
 
 #Define the fake rate versus muon pt
-FAKE_RATE_0 = 3.8
-FAKE_RATE_1 = 3.04e01
-FAKE_RATE_2 = 3.85
-FAKE_RATE_3 = 2.5387e-2
+FAKE_RATE_0 = 3.174
+FAKE_RATE_1 = 14.99
+FAKE_RATE_2 = 2.47
+FAKE_RATE_3 = 6.75e-3
 
 FAKE_RATE = "(%0.4f*TMath::Landau(VAR, %0.4f, %0.4f,0)+%0.4f)" % (
     FAKE_RATE_0, FAKE_RATE_1, FAKE_RATE_2, FAKE_RATE_3)
@@ -31,13 +31,14 @@ FAKE_RATE = FAKE_RATE.replace('VAR', FR_X)
 FR_WEIGHT = '((%s)/(1-%s))' % (FAKE_RATE, FAKE_RATE)
 
 base_selection = [
-    'MuPt > 18',
-    'ElecPt > 9',
+    'MuPt > 9',
+    'ElecPt > 20',
     'MuAbsEta < 2.1',
     'ElecAbsEta < 2.5',
     #'Mu_MuRelIso < 0.3',
     #'Mu_MuID_WWID > 0.5',
-    'Mu17Ele8All_HLT > 0.5',
+    #'Mu17Ele8All_HLT > 0.5',
+    'Mu8Ele17All_HLT > 0.5',
     'Tau_LooseHPS > 0.5',
     'MuCharge*ElecCharge > 0',
     'Mu_MuBtag < 3.3',
@@ -67,8 +68,8 @@ final_selection = [
 ]
 
 variables = {
-#    'DiMuonMass' : ('Muon1_Muon2_Mass', 'M_{#mu#mu}', [100, 0, 300],),
     'ETauMass' : ('Elec_Tau_Mass', 'M_{e#tau}', [60, 0, 300],),
+    'MuTauMass' : ('Mu_Tau_Mass', 'M_{#mu#tau}', [60, 0, 300],),
     #'Muon1_MtToMET' : ('Muon1_MtToMET', 'M_{T} #mu(1)-#tau', [60, 0, 300],),
 #    'Muon2_MtToMET' : ('Muon2_MtToMET', 'M_{T} #mu(2)-#tau', [100, 0, 300],),
     'vtxChi2NODF' : ('vtxChi2/vtxNDOF', 'Vertex #chi^{2}/NODF', [100, 0, 30],),
@@ -81,21 +82,19 @@ selections = {
         'select' : base_selection,
         'title' : "Base Selection",
         'vars' : [
-            'DiMuonMass',
-            'MuTauMass',
-            'Muon1_MtToMET',
-            'MET',
-            'HT',
-            'vtxChi2NODF',
+            #'MuTauMass',
+            #'Muon1_MtToMET',
+            #'MET',
+            #'HT',
+            #'vtxChi2NODF',
         ],
     },
     'with_ht' : {
         'select' : base_selection + passes_ht,
         'title' : "Base Selection + H_{T}",
         'vars' : [
-            'DiMuonMass',
-            'MuTauMass',
-            'Muon1_MtToMET',
+            #'MuTauMass',
+            #'Muon1_MtToMET',
             'vtxChi2NODF',
         ],
     },
@@ -110,9 +109,8 @@ selections = {
         'title' : "Final Selection",
         'select' : base_selection + passes_ht + passes_vtx,
         'vars' : [
-            'DiMuonMass',
             'ETauMass',
-            'Muon1_MtToMET',
+            #'Muon1_MtToMET',
             'vtxChi2NODF',
         ],
     },
