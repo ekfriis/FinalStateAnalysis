@@ -12,12 +12,12 @@ addpkg PhysicsTools/PatAlgos       V08-09-05
 addpkg CommonTools/ParticleFlow    V00-03-11
 
 echo "Checking out Tau POG recipe"
-addpkg DataFormats/TauReco CMSSW_5_2_4 # yes, this is correct
-addpkg RecoTauTag/TauTagTools CMSSW_5_2_4
-cvs co -r V01-04-17 RecoTauTag/RecoTau
-cvs co -r V01-04-01 RecoTauTag/Configuration
+cvs co -r V01-04-17 RecoTauTag/RecoTau #equivalent to 04-14
+cvs co -r V01-04-03 RecoTauTag/Configuration
 cvs co -r V00-04-01 CondFormats/EgammaObjects
 cvs up -r 1.53 PhysicsTools/PatAlgos/python/tools/tauTools.py
+cvs up -r 1.12 PhysicsTools/PatAlgos/python/producersLayer1/tauProducer_cff.py
+cvs up -r 1.15 PhysicsTools/PatAlgos/python/recoLayer0/tauDiscriminators_cff.py
 
 # Add and patch to way speed up trigger matching
 echo "Applying pat trigger matching speedup"
