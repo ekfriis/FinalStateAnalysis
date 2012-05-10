@@ -6,13 +6,10 @@ cd $CMSSW_BASE/src
 echo "Checking out extra packages"
 addpkg -z -f FinalStateAnalysis/recipe/tags
 
-# PAT RECIPE V08-06-55
-addpkg DataFormats/PatCandidates  V06-04-19-04
-addpkg PhysicsTools/PatAlgos      V08-06-55
-addpkg PhysicsTools/PatUtils      V03-09-18
-addpkg CommonTools/ParticleFlow   B4_2_X_V00-03-04
-addpkg PhysicsTools/SelectorUtils V00-03-24
-addpkg PhysicsTools/UtilAlgos     V08-02-14
+# PAT RECIPE V08-09-05
+addpkg DataFormats/PatCandidates   V06-05-01
+addpkg PhysicsTools/PatAlgos       V08-09-05
+addpkg CommonTools/ParticleFlow    V00-03-11
 
 echo "Checking out Tau POG recipe"
 addpkg DataFormats/TauReco CMSSW_5_2_4 # yes, this is correct
