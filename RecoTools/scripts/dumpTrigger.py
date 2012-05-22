@@ -58,7 +58,7 @@ process.patTriggerEvent = cms.EDProducer(
 
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = options.gt
 
 

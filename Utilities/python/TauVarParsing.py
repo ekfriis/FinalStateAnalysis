@@ -13,7 +13,7 @@ See: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAboutPythonConfigFile
 import os
 
 import FWCore.ParameterSet.VarParsing as VarParsing
-import Configuration.PyReleaseValidation.autoCond as autoCond
+import Configuration.AlCa.autoCond as autoCond
 import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Types as CfgTypes
 
