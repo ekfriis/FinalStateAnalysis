@@ -2,6 +2,8 @@
 
 # Setup the environment for the FinalStateAnalysis software
 
+export SCRAM_ARCH=slc5_amd64_gcc462
+
 echo "Setting up CMSSW runtime environment"
 cmsenv
 
@@ -16,8 +18,8 @@ echo "Activating python virtualenv from $vpython"
 export tests=$CMSSW_BASE/test/$SCRAM_ARCH/
 
 # Define shortcuts for the relevant global tags 
-export datagt=GR_R_42_V24::All
-export mcgt=START42_V17::All
+export datagt=GR_P_V32::All
+export mcgt=START52_V9::All
 
 # Define some shortcuts to HDFS and scratch areas
 export hdfs=/hdfs/store/user/$LOGNAME/
