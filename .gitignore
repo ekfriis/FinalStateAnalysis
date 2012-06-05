@@ -17,3 +17,5 @@ recipe/external/*
 docs/build/*
 *.d
 *.so
+*.orig
+*.rej
