@@ -315,13 +315,13 @@ for fr in list(fakerates.keys()):
 
 output_file = ROOT.TFile("results_fakeRates.root", "RECREATE")
 for data_set, skips, int_lumi in [
-    ('2011A', ['2011B', 'EM', 'DoubleE'], 2170),
+    #('2011A', ['2011B', 'EM', 'DoubleE'], 2170),
     #('2011B', ['2011A', 'v1_d', 'EM'], 2170),
-    ('2011AB', ['EM', 'DoubleE'], 4600)]:
+    ('2011AB', ['EM', 'DoubleE', 'ZZ'], 4900)]:
     log.info("Plotting dataset: %s", data_set)
 
     samples, plotter = data_tool.build_data(
-        'VH', '2012-04-14-v1-WHAnalyze', 'scratch_results',
+        'VH', '2012-06-03-7TeV-Higgs', 'scratch_results',
         int_lumi, skips, count='emt/skimCounter')
 
     legend = plotter.build_legend(
