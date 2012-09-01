@@ -9,13 +9,13 @@ ww_limit = limitplot.get_limit_info(["combo/ind_leptonic_ww_125.cls.json"])
 bb_limit = limitplot.get_limit_info(["combo/ind_bb_125.cls.json"])
 combo_limit = limitplot.get_limit_info(["combo/comb_all_125.cls.json"])
 
-print gg_limit
-
+sys.stdout.write('\n')
 
 sys.stdout.write(
     ' & '.join(['Channel', '-2$\\sigma$', '-1$\\sigma$', 'Expected',
                 '+1$\\sigma$', '+2$\\sigma$', 'Observed']) + '\\\\\n'
 )
+sys.stdout.write('\\hline\n')
 
 template = ' & '.join([
     '{channel:20s}',
@@ -33,6 +33,7 @@ for channel, data in [
     sys.stdout.write(template.format(channel=channel,
         **data.values()[0][125]))
 
-sys.stdout.write('\\hline')
+sys.stdout.write('\\hline\n')
 sys.stdout.write(template.format(channel='Combined',
         **combo_limit.values()[0][125]))
+sys.stdout.write('\n')
