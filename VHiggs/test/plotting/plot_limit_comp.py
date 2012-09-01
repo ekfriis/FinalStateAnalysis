@@ -34,7 +34,8 @@ graphs = {
 }
 
 
-legend = ROOT.TLegend(0.55, 0.68, 0.95, 0.95, "", "brNDC")
+legend = ROOT.TLegend(0.53, 0.71, 0.93, 0.93, "", "brNDC")
+#legend = ROOT.TLegend(0.20+0.31, 0.15+0.07, 0.6+0.31, 0.37+0.07, "", "brNDC")
 legend.SetBorderSize(1)
 legend.SetFillStyle(1001)
 legend.SetFillColor(0)
