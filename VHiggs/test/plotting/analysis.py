@@ -949,7 +949,7 @@ if __name__ == "__main__":
                             #hww_signal = signal.Clone()
                             #hww_signal.Scale(0.0)
                         if hww_signal:
-                            hww_signal.SetName('VH%iWW' % mass)
+                            hww_signal.SetName('VH_hww%i' % mass)
 
                         # Write everything to the output directory
                         signal.Write()

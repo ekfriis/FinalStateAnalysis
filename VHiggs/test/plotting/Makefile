@@ -267,30 +267,28 @@ cards/$(channel).asymp.pdf: $(asymp_results) legendpos.py
 ## Tools for committing into combination SVN ###################################
 ################################################################################
 
-combination=moriond12
-combination_mass_points=$(shell seq 110 140) 
+combination=ichep2012
+combination_mass_points=$(shell seq 110 0.5 145) 
 #combination_FF_mass_points=$(shell seq 120 145)
 
-combination_cards: $(patsubst %, $(combination)/%/vhtt.txt, $(combination_mass_points)) \
-  $(patsubst %, $(combination)/%/SM4_vhtt.txt, $(combination_mass_points))  \
-  $(patsubst %, $(combination)/%/vhtt_shapes.root, $(combination_mass_points)) 
 
 #$(patsubst %, $(combination)/%/FF_vhtt.txt, $(combination_FF_mass_points)) \
 
 # Make a version of the shape file with minimal info
-$(combination)/%/vhtt_shapes.root: $(shape_file) trim_shape_file.py
-	./trim_shape_file.py --mass $* --out $@ $(shape_file) \
-	  emt_emu_final_count \
-	  mmt_mumu_final_count
+#$(combination)/%/vhtt_shapes.root: $(shape_file) trim_shape_file.py
+	#./trim_shape_file.py --mass $* --out $@ $(shape_file) \
+	  #emt_emu_final_SubleadingMass \
+	  #mmt_mumu_final_MuTauMass
 
-$(combination)/%/vhtt.txt: cards/combined_%.txt $(combination)/%/vhtt_shapes.root
+$(combination)/common/vhtt_lep.input_7TeV.root: $(shape_file)
 	cp $< $@
 
-$(combination)/%/FF_vhtt.txt: cards/combined_%FF.txt $(combination)/%/vhtt_shapes.root
-	cp $< $@
+$(combination)/%/vhtt_0_7TeV.txt: cards/combined_%.txt $(combination)/common/vhtt_lep.input_7TeV.root 
+	cat $< | sed "s|vhtt_shapes.root|../common/vhtt_lep.input_7TeV.root|" | \
+	  sed "s| VH$* | VH |" | sed "s| VH_hww$* | VH_hww |" > $@
 
-$(combination)/%/SM4_vhtt.txt: cards/combined_%SM4.txt $(combination)/%/vhtt_shapes.root
-	cp $< $@
+combination_cards: $(patsubst %, $(combination)/%/vhtt_0_7TeV.txt, $(combination_mass_points)) \
+  $(combination)/common/vhtt_lep.input_7TeV.root 
 
 ################################################################################
 ## Debug cards, using only TauTau and WW contributions #########################

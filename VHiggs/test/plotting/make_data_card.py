@@ -114,7 +114,7 @@ elif 'tt' in options.mass:
     is_tt_only = True
     mass = int(options.mass.replace('tt', ''))
 else:
-    mass = int(options.mass)
+    mass = float(options.mass)
 
 # Get the theory errors
 pdf_err = theory_errors.get_pdf_err_str(mass)
@@ -126,7 +126,13 @@ with open('scale_systematics.json') as scale_sys_file:
     scale_systematics = json.load(scale_sys_file)
 
 # Define which histograms are signal histograms
-signal_datasets = ['VH%i' % mass, 'VH%iWW' % mass]
+mass_formatted = None
+if abs(mass/int(mass)) - 1 < 1e-8:
+    mass_formatted = '%i' % int(mass)
+else:
+    mass_formatted = '%0.1f' % mass
+
+signal_datasets = ['VH%s' % mass_formatted, 'VH_hww%s' % mass_formatted]
 
 # If we are fermiophobic, we only use HWW
 if is_fermiophobic:
@@ -158,9 +164,18 @@ mmt.add_sys('CMS_vhtt_ZZxsec', 1.0 + zz_err, ['ZZ'])
 mmt.add_sys('CMS_eff_t', 1+ tau_err, signal_datasets + mc_samples)
 mmt.add_sys('CMS_eff_m', 1 + quad(mu_id_err, mu_id_err), signal_datasets + mc_samples)
 
+def stat_error_translator_hack(sample):
+    output = sample
+    if 'hww' in sample:
+        output = sample.replace('_hww', '')
+        output = output + 'WW'
+    return output
+
 # Add stat errors on MC samples
 for sample in ['WZ', 'ZZ'] + signal_datasets:
-    stat_error, _ = get_stat_error(sample, mmt.get_rate(sample))
+    stat_error, _ = get_stat_error(
+        stat_error_translator_hack(sample.replace('.5', '')),
+        mmt.get_rate(sample.replace('.5', '')))
     if stat_error > 0.02:
         print "ADDING STAT ERROR %f FOR SAMPLE %s" % (stat_error, sample)
     mmt.add_sys('CMS_vhtt_stat_mmt_%s' % sample, 1 + stat_error, [sample])
@@ -181,15 +196,16 @@ for sample, sample_info in scale_systematics['mmt'].iteritems():
         if 'tau_up' in sample_info:
             avg_err = ((sample_info['tau_up'] - sample_info['tau_down'])/
                        (2*sample_info['nom']))
-            mmt.add_sys('CMS_p_scale_t', 1.0 + avg_err, [sample])
+            mmt.add_sys('CMS_scale_t', 1.0 + avg_err, [sample])
         if 'e_up' in sample_info:
             avg_err = ((sample_info['e_up'] - sample_info['e_down'])/
                        (2*sample_info['nom']))
-            mmt.add_sys('CMS_p_scale_e', 1.0 + avg_err, [sample])
+            mmt.add_sys('CMS_scale_e', 1.0 + avg_err, [sample])
 
 
 if mu_fake_error > 0:
     mmt.add_sys('CMS_vhtt_fakemu', 1 + mu_fake_error, 'fakes')
+    #mmt.add_sys('CMS_fake', 1 + mu_fake_error, 'fakes')
 if high_mu_fake_error > 0:
     mmt.add_sys('CMS_vhtt_fake_hmu', 1 + high_mu_fake_error, 'fakes')
 
@@ -226,7 +242,9 @@ emt.add_sys('CMS_eff_e', 1.02, signal_datasets + mc_samples)
 
 # Add stat errors on MC samples
 for sample in ['WZ', 'ZZ'] + signal_datasets:
-    stat_error, _ = get_stat_error(sample, emt.get_rate(sample))
+    stat_error, _ = get_stat_error(
+        stat_error_translator_hack(sample.replace('.5', '')),
+        mmt.get_rate(sample.replace('.5', '')))
     if stat_error > 0.02:
         print "ADDING STAT ERROR %f FOR SAMPLE %s" % (stat_error, sample)
     emt.add_sys('CMS_vhtt_stat_emt_%s' % sample, 1 + stat_error, [sample])
@@ -240,6 +258,7 @@ if e_fake_error > 0:
     emt.add_sys('CMS_vhtt_fake_e', 1 + e_fake_error, 'fakes')
 if mu_fake_error > 0:
     emt.add_sys('CMS_vhtt_fakemu', 1 + mu_fake_error, 'fakes')
+    #emt.add_sys('CMS_fake', 1 + mu_fake_error, 'fakes')
 if options.triboson_err > 0:
     emt.add_sys('QCDscale_VVV', 1.0 + options.triboson_err, ['tribosons'])
 
@@ -249,11 +268,11 @@ for sample, sample_info in scale_systematics['emt'].iteritems():
         if 'tau_up' in sample_info:
             avg_err = ((sample_info['tau_up'] - sample_info['tau_down'])/
                        (2*sample_info['nom']))
-            emt.add_sys('CMS_p_scale_t', 1.0 + avg_err, [sample])
+            emt.add_sys('CMS_scale_t', 1.0 + avg_err, [sample])
         if 'e_up' in sample_info:
             avg_err = ((sample_info['e_up'] - sample_info['e_down'])/
                        (2*sample_info['nom']))
-            emt.add_sys('CMS_p_scale_e', 1.0 + avg_err, [sample])
+            emt.add_sys('CMS_scale_e', 1.0 + avg_err, [sample])
 
 for path, subdirs, histos in shapes.walk(emt_folder, class_pattern="TH1*"):
     # Set of lead fake bins which have a systematic
@@ -277,5 +296,7 @@ channel_map = {
 }
 
 card = dc.DataCard('VHtautau fit', '4.6 fb-1',
-                   channel_map[options.channels], options.file)
+                   channel_map[options.channels], options.file,
+                   mass_append=['VH', 'VH_hww'],
+                  )
 card.write(output)

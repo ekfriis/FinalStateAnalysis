@@ -61,12 +61,14 @@ class DataCardChannel(object):
 
 class DataCard(object):
     def __init__(self, name, description, channels, shape_file,
-                 mass_in_dir=False):
+                 mass_in_dir=False, mass_append=[],
+                ):
         self.name = name
         self.description = description
         self.channels = channels
         self.shape_file = shape_file
         self.mass_in_dir=mass_in_dir
+        self.mass_append = mass_append
 
     def n_bins(self):
         return len(self.channels)
@@ -96,6 +98,12 @@ class DataCard(object):
             stream.write(
                 "shapes * * %s $CHANNEL/$PROCESS $CHANNEL/$PROCESS_$SYSTEMATIC\n" %
                 self.shape_file)
+
+        for sample in self.mass_append:
+            stream.write(
+                "shapes %s * %s $CHANNEL/$PROCESS$MASS $CHANNEL/$PROCESS$MASS_$SYSTEMATIC\n" %
+                (sample, self.shape_file))
+
 
         obs_bin_names = []
         obs_bin_data = []
