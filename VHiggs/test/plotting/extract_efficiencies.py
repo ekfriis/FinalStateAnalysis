@@ -101,7 +101,7 @@ for mass in range(110, 165, 10):
 
     template = ' & '.join([
         '{mass:0.0f} \\GeV',
-        '${www_wtt:0.1f}\\%\\pm{www_wtt_err:0.1f}\\%$',
+        '${www_wtt:0.2f}\\%\\pm{www_wtt_err:0.2f}\\%$',
         '${www_www:0.1f}\\%\\pm{www_www_err:0.1f}\\%$',
         '${wtt_wtt:0.1f}\\%\\pm{wtt_wtt_err:0.1f}\\%$',
         '${wtt_www:0.1f}\\%\\pm{wtt_wtt_err:0.1f}\\%$',
