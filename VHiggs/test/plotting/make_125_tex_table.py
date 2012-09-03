@@ -25,7 +25,7 @@ template = ' & '.join([
 
 for channel, data in [
     ('$3\\ell$', ww_limit),
-    ('$2\\ell\\tau_h$', ww_limit),
+    ('$2\\ell\\tau_h$', tt_limit),
     ('$4L$', zh_limit),
     ('$\gamma\gamma$', gg_limit),
     ('$\\bbbar$', bb_limit)]:
