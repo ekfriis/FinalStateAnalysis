@@ -38,7 +38,8 @@ _common_template = PSet(
     templates.trigger.singlemu,
     templates.trigger.singlee,
     templates.trigger.singlePho,
-    templates.trigger.doublePho
+    templates.trigger.doublePho,
+    templates.trigger.isoMuTau
 )
 
 # Define the branch templates for different object types.
@@ -61,6 +62,12 @@ _muon_template = PSet(
     templates.muons.tracking,
     templates.muons.trigger,
     templates.topology.mtToMET,
+)
+
+_bjet_template= PSet(
+    templates.bjets.btagging,
+    templates.candidates.kinematics,
+    templates.candidates.vertex_info,
 )
 
 _electron_template = PSet(
@@ -87,25 +94,29 @@ _photon_template = PSet(
     templates.topology.mtToMET,
 )
 
+
 _leg_templates = {
     't': _tau_template,
     'm': _muon_template,
     'e': _electron_template,
-    'g': _photon_template
+    'g': _photon_template,
+    'j': _bjet_template
 }
 
 _pt_cuts = {
-    'm': '7',
+    'm': '5',
     'e': '7',
     't': '18',
-    'g': '10'
+    'g': '10',
+    'j': '20'
 }
 
 _eta_cuts = {
     'm': '2.5',
     'e': '3.0',
     't': '2.3',
-    'g': '3.0'
+    'g': '3.0',
+    'j': '2.5'
 }
 
 # How to get from a leg name to "finalStateElecMuMuMu" etc
@@ -113,8 +124,10 @@ _producer_translation = {
     'm': 'Mu',
     'e': 'Elec',
     't': 'Tau',
-    'g': 'Pho'
+    'g': 'Pho',
+    'j': 'Jet'
 }
+
 
 
 def add_ntuple(name, analyzer, process, schedule, event_view=False):
@@ -133,6 +146,25 @@ def add_ntuple(name, analyzer, process, schedule, event_view=False):
     schedule.append(p)
 
 
+def add_ntuple_filter(name, analyzer, filterSeq, process, schedule, event_view=False):
+    ''' Add an ntuple to the process with given name and schedule it
+
+    A path for the ntuple will be created.
+    '''
+    if hasattr(process, name):
+        raise ValueError("An ntuple builder module named %s has already"
+                         " been attached to the process!" % name)
+    setattr(process, name, analyzer)
+    analyzer.analysis.EventView = cms.bool(bool(event_view))
+    # Make a path for this ntuple, adding the filter
+    p=cms.Path(filterSeq*analyzer)
+    #p = cms.Path(analyzer)
+    setattr(process, name + 'path', p)
+    schedule.append(p)
+
+
+
+
 def make_ntuple(*legs, **kwargs):
     ''' Build an ntuple for a set of input legs.
 
@@ -145,7 +177,7 @@ def make_ntuple(*legs, **kwargs):
 
     '''
     # Make sure we only use allowed leg types
-    allowed = set(['m', 'e', 't', 'g'])
+    allowed = set(['m', 'e', 't', 'g','j'])
     assert(all(x in allowed for x in legs))
     # Make object labels
     object_labels = []
@@ -157,7 +189,8 @@ def make_ntuple(*legs, **kwargs):
         't': 0,
         'm': 0,
         'e': 0,
-        'g': 0
+        'g': 0,
+	'j': 0,
     }
 
     ntuple_config = _common_template.clone()
@@ -173,7 +206,7 @@ def make_ntuple(*legs, **kwargs):
     if 'branches' in kwargs:
         for branch, value in kwargs['branches'].iteritems():
             setattr(ntuple_config, branch, cms.string(value))
-        
+
     # Check if we want to use special versions of the FSA producers
     # via a suffix on the producer name.
     producer_suffix = kwargs.get('suffix', '')
@@ -200,10 +233,55 @@ def make_ntuple(*legs, **kwargs):
 
     # Now we need to add all the information about the pairs
     for leg_a, leg_b in itertools.combinations(object_labels, 2):
+        
         ntuple_config = PSet(
             ntuple_config,
             templates.topology.pairs.replace(object1=leg_a, object2=leg_b),
             templates.topology.zboson.replace(object1=leg_a, object2=leg_b),
+        )
+        # Check if we want to enable SVfit
+        # Only do SVfit in states with 2 or 4 leptons
+        do_svfit = kwargs.get("svFit", False)
+        if not len(legs) % 2 == 0:
+            do_svfit = False
+
+        leg_a_type = leg_a[0]
+        leg_b_type = leg_b[0]
+      
+        leg_a_index = legs.index(leg_a_type) \
+            if counts[leg_a_type] == 1 else legs.index(leg_a_type) + int(leg_a[1]) - 1
+        leg_b_index = legs.index(leg_b_type) \
+            if counts[leg_b_type] == 1 else legs.index(leg_b_type) + int(leg_b[1]) - 1
+
+        # Never do SVfit on 'non-paired' leptons (eg legs 0 & 2), or legs 1&3
+        # legs either adjacent or both ends (0 and 3)
+        if leg_a_index % 2 != 0 or abs(leg_a_index - leg_b_index) % 2 != 1:
+            do_svfit = False
+        # Only do SVfit on mu + tau, e + tau, e + mu, & tau + tau combinations
+        if leg_a_type == leg_b_type and leg_a_type in ('m', 'e'):
+            do_svfit = False
+        # Always ignore photons
+        if 'g' in legs:
+            do_svfit = False
+        if do_svfit:
+            print "SV fitting legs %s and %s in final state %s" % (
+                leg_a, leg_b, ''.join(legs))
+            ntuple_config = PSet(
+                ntuple_config,
+                templates.topology.svfit.replace(object1=leg_a, object2=leg_b)
+            )
+
+    # Are we running on the ZZ-specific collections?
+    zz_mode = kwargs.get('zz_mode', False)
+
+    analyzerSrc = "finalState" + "".join(
+            _producer_translation[x] for x in legs ) + producer_suffix
+
+    if zz_mode:
+        analyzerSrc += "Hzz"
+        ntuple_config = PSet(
+                ntuple_config,
+                templates.topology.zzfsr
         )
 
     # Now build our analyzer EDFilter skeleton
@@ -211,9 +289,7 @@ def make_ntuple(*legs, **kwargs):
         "PATFinalStateAnalysisFilter",
         weights=cms.vstring(),
         # input final state collection.
-        src=cms.InputTag("finalState" + "".join(
-            _producer_translation[x] for x in legs) 
-            + producer_suffix),
+        src=cms.InputTag( analyzerSrc ),
         evtSrc=cms.InputTag("patFinalStateEventProducer"),
         # counter of events before any selections
         skimCounter=cms.InputTag("eventCount", "", "TUPLE"),
@@ -262,9 +338,11 @@ def make_ntuple(*legs, **kwargs):
     #   first put best Z in initial position
     #   then order first two by pt
     #   then order third and fourth by pt
-    make_unique = True
-    if 'noclean' in kwargs:
-        make_unique = not kwargs['noclean']
+    noclean = kwargs.get('noclean', False)
+
+    # ZZ-producer does not require this cleaning step
+    make_unique = not noclean and not zz_mode
+    
     if make_unique:
         for type, count in counts.iteritems():
             if count == 2:
@@ -370,8 +448,10 @@ def make_ntuple(*legs, **kwargs):
                                    (leg3_idx_label, leg4_idx_label))
                 ))
 
+
     # Now apply our formatting operations
     format(output, **format_labels)
+#    return LHEFilter*output
     return output
 
 if __name__ == "__main__":

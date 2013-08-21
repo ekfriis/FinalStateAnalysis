@@ -4,6 +4,13 @@ set -o nounset
 
 pushd $CMSSW_BASE/src
 
+#for standalone version of svfit
+ cvs co -r V00-01-04s TauAnalysis/CandidateTools
+
+# for some reason patTuple creation fails due to lack  of plugin PFCandIsolatorFromDeposits
+# to fix
+cvs co -r V00-03-13 CommonTools/ParticleFlow
+
 # Tags that work in any release
 
 # To install lumiCalc.py
@@ -32,12 +39,6 @@ then
   cat > $CMSSW_BASE/src/FinalStateAnalysis/PatTools/interface/PATProductionFlag.h << EOF 
 #define ENABLE_PAT_PROD
 EOF
-
-  # Add Electron ID MVA - the tags get checked out in 42X/52X/53X specific
-  # scripts
-  pushd $CMSSW_BASE/src/EGamma/EGammaAnalysisTools/data
-  cat download.url | xargs wget
-  popd
 
 else
   cat > $CMSSW_BASE/src/FinalStateAnalysis/PatTools/interface/PATProductionFlag.h << EOF 

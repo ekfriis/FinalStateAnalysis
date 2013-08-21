@@ -21,7 +21,7 @@ from FinalStateAnalysis.PatTools.electrons.patElectronMVAIDEmbedding_cfi import\
         patElectronMVAIDEmbedder
 
 from FinalStateAnalysis.PatTools.electrons.patElectronMVAWPEmbedding_cfi import\
-        patElectronMVAIDWPEmbedding
+        patElectronMVAIDWPEmbedding, patElectronMVAIDZZEmbedding
 
 from FinalStateAnalysis.PatTools.electrons.electronCutBasedID_cfi import \
      patElectronCutBasedIdEmbedder
@@ -37,10 +37,6 @@ from FinalStateAnalysis.PatTools.electrons.patElectronsIpEmbedding_cfi import \
 
 from FinalStateAnalysis.PatTools.electrons.eTrackCandidates_cfi import \
         gsfTrackCandidates
-
-# Electron Energy Regression and Calibrations
-from FinalStateAnalysis.PatTools.electrons.patElectronEnergyCorrections_cfi import \
-     patElectronEnergyCorrections
 
 from FinalStateAnalysis.PatTools.electrons.patConversionRejection_cfi import \
      patElectronConversionMatch
@@ -63,6 +59,6 @@ customizeElectronSequence += patElectronCutBasedIdEmbedder
 customizeElectronSequence += patElectronEAEmbedder
 customizeElectronSequence += patElectronMVAIDEmbedder
 customizeElectronSequence += patElectronMVAIDWPEmbedding
+customizeElectronSequence += patElectronMVAIDZZEmbedding
 customizeElectronSequence += patElectronsEmbedIp
-customizeElectronSequence += patElectronEnergyCorrections
 customizeElectronSequence += patElectronConversionMatch

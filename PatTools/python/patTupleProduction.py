@@ -71,11 +71,13 @@ def configurePatTuple(process, isMC=True, **kwargs):
         '*_kt6PFJetsCentralNeutral_rho_*',  # for zz muons
         '*_photonCore_*_*',
         # for Zmumu -> embedded samples
-        '*_generator_weight_*',  # 2k11
-        "GenFilterInfo_generator_minVisPtFilter_*",  # 2k12
-        '*_genDaughters_*_*',
-        '*_boosted*_*_*',
-        '*_tmfTracks_*_*',
+        # https://twiki.cern.ch/twiki/bin/view/CMS/MuonTauReplacementRecHit
+        '*_generalTracksORG_*_EmbeddedRECO',
+        '*_electronGsfTracksORG_*_EmbeddedRECO',
+        'double_TauSpinnerReco_TauSpinnerWT_EmbeddedSPIN',
+        'double_ZmumuEvtSelEffCorrWeightProducer_weight_EmbeddedRECO',
+        'double_muonRadiationCorrWeightProducer_weight_EmbeddedRECO',
+        'GenFilterInfo_generator_minVisPtFilter_EmbeddedRECO',
     ]
     # Define our patTuple production sequence
     process.tuplize = cms.Sequence()
@@ -160,17 +162,6 @@ def configurePatTuple(process, isMC=True, **kwargs):
         # Just keep the normal ones
         output_commands.append('*_ak5PFJets_*_*')
 
-    # In the embedded samples, we need to re-run the b-tagging
-    if kwargs['embedded']:
-        process.load('RecoBTag/Configuration/RecoBTag_cff')
-        process.load('RecoJets/JetAssociationProducers/ak5JTA_cff')
-        process.ak5JetTracksAssociatorAtVertex.jets = \
-            cms.InputTag("ak5PFJets")
-        process.ak5JetTracksAssociatorAtVertex.tracks = \
-            cms.InputTag("tmfTracks")
-        process.tuplize += process.ak5JetTracksAssociatorAtVertex
-        process.tuplize += process.btagging
-
     # Run pat default sequence
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     # Embed PF Isolation in electrons & muons
@@ -194,7 +185,7 @@ def configurePatTuple(process, isMC=True, **kwargs):
             checkCharge = cms.bool(False),
             resolveAmbiguities = cms.bool(True),
             matched = cms.InputTag("genParticles")
-            )        
+            )
 
     # Use POG recommendations for (these) electron Isos
     process.elPFIsoValueGamma04PFIdPFIso.deposits[0].vetos = cms.vstring(
@@ -320,21 +311,50 @@ def configurePatTuple(process, isMC=True, **kwargs):
 
     # Produce the electron collections
     process.load("FinalStateAnalysis.PatTools.patElectronProduction_cff")
+
+    # Electron Energy Regression and Calibrations
+    process.load("EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi")
+    process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
+
+    #setup the energy regression for the specific dataset
+    if kwargs['eleReg']:
+        print "-- Applying Electron Regression and Calibration --"
+
+        process.customizeElectronSequence += process.eleRegressionEnergy
+        process.customizeElectronSequence += process.calibratedPatElectrons
+
+        process.eleRegressionEnergy.energyRegressionType    = cms.uint32(2)
+        process.calibratedPatElectrons.correctionsType      = cms.int32(2)
+
+        if isMC:
+            process.calibratedPatElectrons.inputDataset     = cms.string(
+                "Summer12_LegacyPaper")
+        else:
+            process.calibratedPatElectrons.inputDataset     = cms.string(
+                "22Jan2013ReReco")
+
+        process.calibratedPatElectrons.combinationType      = cms.int32(3)
+        process.calibratedPatElectrons.lumiRatio            = cms.double(1.0)
+        process.calibratedPatElectrons.synchronization      = cms.bool(True)
+        process.calibratedPatElectrons.isMC                 = cms.bool(isMC == 1)
+        process.calibratedPatElectrons.verbose              = cms.bool(False)
+
     final_electron_collection = chain_sequence(
-        process.customizeElectronSequence, "selectedPatElectrons")
+        process.customizeElectronSequence, "selectedPatElectrons",
+        # Some of the EGamma modules have non-standard src InputTags,
+        # specify them here.
+        ("src", "inputPatElectronsTag", "inputElectronsTag")
+    )
+
     process.tuplize += process.customizeElectronSequence
     process.customizeElectronSequence.insert(0, process.selectedPatElectrons)
     process.patDefaultSequence.replace(process.selectedPatElectrons,
                                        process.customizeElectronSequence)
     # We have to do the pat Jets before the pat electrons since we embed them
     process.customizeElectronSequence.insert(0, process.selectedPatJets)
+    
+    # Define cleanPatElectrons input collection
     process.cleanPatElectrons.src = final_electron_collection
-    #setup the energy regression for the specific dataset
-    process.patElectronEnergyCorrections.isMC = cms.bool(bool(isMC))
-    process.patElectronEnergyCorrections.isAOD = \
-        cms.bool(bool(kwargs['isAOD']))
-    process.patElectronEnergyCorrections.dataSet = \
-        cms.string(kwargs['calibrationTarget'])
 
     process.load("FinalStateAnalysis.PatTools.patMuonProduction_cff")
     final_muon_collection = chain_sequence(
@@ -433,7 +453,7 @@ def configurePatTuple(process, isMC=True, **kwargs):
 
     # Define the default lepton cleaning
     process.cleanPatElectrons.preselection = cms.string(
-        'userFloat("maxCorPt") > 5')
+        'pt > 5')
     process.cleanPatElectrons.checkOverlaps.muons.requireNoOverlaps = False
     # Make sure we don't kill any good taus by calling them electrons
     # Note that we don't actually remove these overlaps.

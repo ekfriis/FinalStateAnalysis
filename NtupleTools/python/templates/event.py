@@ -43,6 +43,10 @@ pv_info = PSet(
 met = PSet(
     mva_metEt     = 'evt.met("mvamet").et',
     mva_metPhi    = 'evt.met("mvamet").phi',
+    #type1_pfMetEt  = 'evt.met("pfmet").userCand("type1").et',
+    #type1_pfMetPhi = 'evt.met("pfmet").userCand("type1").phi',
+    pfMetEt  = 'evt.met4vector("pfmet","",1).Et',
+    pfMetPhi = 'evt.met4vector("pfmet","",1).phi',
     type1_pfMetEt  = 'evt.met4vector("pfmet","type1",1).Et', #1 --> Apply phi correction
     type1_pfMetPhi = 'evt.met4vector("pfmet","type1",1).phi',
     #systematics
@@ -71,4 +75,12 @@ gen = PSet(
     processID='evt.genEventInfo.signalProcessID',
     isZtautau='evt.findDecay(23,15)',
     isGtautau='evt.findDecay(22,15)',
+    isWtaunu='evt.findDecay(24,15)',
+    isWmunu='evt.findDecay(24,13)',
+    NUP='evt.lesHouches.NUP',
+    EmbPtWeight='evt.generatorFilter.filterEfficiency',
 )
+
+
+
+

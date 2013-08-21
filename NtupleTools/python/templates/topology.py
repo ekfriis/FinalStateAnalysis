@@ -41,7 +41,11 @@ pairs = PSet(
     object1_object2_CosThetaStar = 'abs(subcand({object1_idx}, {object2_idx}).get.daughterCosThetaStar(0))',
 
     #Pairs + MET
-    object1_object2_ToMETDPhi = 'deltaPhi(subcand({object1_idx}, {object2_idx}).get.phi, evt.met("pfmet").userCand("type1").phi)',
+    object1_object2_ToMETDPhi_Ty1 = 'deltaPhi(subcand({object1_idx}, {object2_idx}).get.phi, evt.met("pfmet").userCand("type1").phi)',
+)
+
+svfit = PSet(
+    object1_object2_SVfitMass = 'SVfit({object1_idx},{object2_idx})',
 )
 
 finalstate = PSet(
@@ -53,29 +57,60 @@ finalstate = PSet(
     MassErrord1 = 'userFloat("cand_dM_0")',
     MassErrord2 = 'userFloat("cand_dM_1")',
     MassErrord3 = 'userFloat("cand_dM_2")',
-    MassErrord4 = 'userFloat("cand_dM_3")'    
+    MassErrord4 = 'userFloat("cand_dM_3")'
 )
 
 # Branches for identifying Z bosons using a pair of objects
 zboson = PSet(
     # Absolute distance to Z mass.  If SS, returns 1000.  The smaller the more
     # "Z like"
-    object1_object2_Zcompat = 'zCompatibility({object1_idx}, {object2_idx})'
+    object1_object2_Zcompat = 'zCompatibility({object1_idx}, {object2_idx})',
+    object1_object2_MassFsr = 'subcandfsr({object1_idx}, {object2_idx}).get.mass',
+    object1_object2_PtFsr   = 'subcandfsr({object1_idx}, {object2_idx}).get.pt',
 )
 
-vbf = PSet(
-    # If nJets < 2, none of these other branches are valid
-    vbfNJets = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").jets20',
-    vbfJetVeto30 = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").jets30',
-    vbfJetVeto20 = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").jets20',
-    vbfMVA = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").mva',
-    vbfMass = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").mass',
-    vbfDeta = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").deta',
-    vbfj1eta = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").eta1',
-    vbfj2eta = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").eta2',
-    vbfVispt = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").c2',
-    vbfHrap = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").hrapidity',
-    vbfDijetrap = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").dijetrapidity',
-    vbfDphihj = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").dphihj',
-    vbfDphihjnomet = 'vbfVariables("pt > 30 & userInt(\'fullIdLoose\')").dphihj_nomet',
+zzfsr = PSet(
+    MassFsr                 = 'p4fsr().M',
+    PtFsr                   = 'p4fsr().pt',
+    KD                      = 'userFloat("KD")',
+
+    # KD angles
+    costheta1               = 'userFloat("costheta1")',
+    costheta2               = 'userFloat("costheta2")',
+    costhetastar            = 'userFloat("costhetastar")',
+    Phi                     = 'userFloat("Phi")',
+    Phi1                    = 'userFloat("Phi1")',
+
+    # Gen-level KD angles
+    costheta1_gen           = 'userFloat("costheta1_gen")',
+    costheta2_gen           = 'userFloat("costheta2_gen")',
+    costhetastar_gen        = 'userFloat("costhetastar_gen")',
+    Phi_gen                 = 'userFloat("Phi_gen")',
+    Phi1_gen                = 'userFloat("Phi1_gen")'
 )
+
+
+vbf = PSet(
+  # If nJets < 2, none of these other branches are valid
+   vbfNJets = 'vbfVariables("pt >30& userInt(\'fullIdTight\') & userFloat(\'idLoose\')").nJets',
+   vbfJetVeto30 = 'vbfVariables("pt >30& userInt(\'fullIdLoose\') & userFloat(\'idLoose\')").jets30',
+   vbfJetVeto20 = 'vbfVariables("pt >30& userInt(\'fullIdLoose\')  & userFloat(\'idLoose\')").jets20',
+   vbfJetVetoTight30 = 'vbfVariables("pt >30& userInt(\'fullIdTight\') & userFloat(\'idLoose\')").jets30',
+   vbfJetVetoTight20 = 'vbfVariables("pt >30& userInt(\'fullIdTight\')  & userFloat(\'idLoose\')").jets20',
+   vbfMVA = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\') ").mva',
+   vbfMass = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").mass',
+   vbfDeta = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").deta',
+   vbfDphi = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").dphi',
+   vbfj1eta = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").eta1',
+   vbfj2eta = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").eta2',
+   vbfVispt = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").c2',
+   vbfHrap = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").hrapidity',
+   vbfDijetrap = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").dijetrapidity',
+   vbfDphihj = 'vbfVariables("pt >30& userInt(\'fullIdTight\')  & userFloat(\'idLoose\')").dphihj',
+   vbfDphihjnomet = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").dphihj_nomet',
+   vbfj1pt = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").pt1',
+   vbfj2pt = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").pt2',
+   vbfdijetpt = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").dijetpt',
+   vbfditaupt = 'vbfVariables("pt >30& userInt(\'fullIdTight\') &  userFloat(\'idLoose\')").ditaupt',
+)
+

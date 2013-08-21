@@ -27,11 +27,11 @@ options = TauVarParsing.TauVarParsing(
     clean = 1,
     embedded=0, # If running on embedded samples, set to 1
     analyzeSkimEff='', # Analyze the skim efficiency and put it in this file
+    eleReg=False
 )
 
 files = [
-
-    #"root://cmsxrootd.hep.wisc.edu//store/data/Run2012B/DoubleMu/AOD/29Jun2012-v1/0001/C46FD2A9-3FC3-E111-A1A8-485B39800C00.root"
+    
 ]
 
 options.inputFiles = files
@@ -91,7 +91,7 @@ tuplize, output_commands = tuplizer.configurePatTuple(
     puTag=options.puTag, dataset=options.dataset,
     embedded=options.embedded,
     calibrationTarget=options.calibrationTarget,
-    HLTprocess=options.HLTprocess
+    HLTprocess=options.HLTprocess, eleReg=options.eleReg
 )
 
 if options.globalTag == "":
